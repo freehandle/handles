@@ -15,23 +15,23 @@ import (
 
 type Config struct {
 	// Token for the node
-	Token string
+	Token string // json:"token"
 	// Port for the admin interface
-	AdminPort int
+	AdminPort int // json:"admin_port"
 	// Port for the new conenctiosn
-	Port int
+	Port int // json:"port"
 	// Firewall for incoming connections
-	Firewall config.FirewallConfig
+	Firewall config.FirewallConfig // json:"firewall"
 	// Trusted block providers for the node
-	TrustedProviders []config.Peer
+	TrustedProviders []config.Peer // json:"trustedProviders"
 	// Number of providers to connect to receive new blocks
-	ProvidersSize int
+	ProvidersSize int // json:"providersSize"
 	// Path to the notary file (empty for memory)
-	DatabasePath string
+	DatabasePath string // json:"databasePath"
 	// True if the node will initiate a new social chain from genesis
-	Indexed bool
+	Indexed bool // json:"indexed"
 	// NetworkID
-	NetworkID string
+	NetworkID string // json:"networkID"
 }
 
 func (c Config) Check() error {

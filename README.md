@@ -39,6 +39,8 @@ For a validator connected to block listeners
 
 ## Running Handles
 
+### Validator
+
 To run a handles protocolo validator one has to provide a json configuration file with the relevant specifications.
 
 ```
@@ -84,5 +86,34 @@ Firewall rules follow the breeze convention
 When "open" is set to __true__ the firewall will by default allow all connections except those blacklisted by the "tokenList". When __false__, the firewall will by default forbid all connections except those whitelisted by the "tokenList". 
 
 If a node is starting from genesis, one must ensure that the node will process the entire history of breeze blockchain. Typically one will only use the configuration in a sync mode. 
+
+### Block Database
+
+To run a handles protocol default block database one has to provide a json configuration file with the relevant specifications.
+
+```
+echo-handles <path-to-json-config-file>
+```
+
+The standard configuration for the handles protocol is 
+
+```
+{
+	"token": "hex 64 char representation of node token",
+	"port": <port for incoming connections>,.
+    "adminPort":  <another port for node remote administration>,
+	"firewall": { firewall configuration for incomming connections }
+	"trustedProviders": [
+        {
+            "address": "dns or ip address of a trusted provider for bree blocks",
+            "token": "token associated to that address"
+        }, ...
+    ]
+	"providersSize": <number of different providers to connect to>,
+	"databasePAth": "path for block history and index storage"
+	"indexed": <true> for indexation <false> for block history only,
+    "networkID": "underlying breeze network id",
+}
+```
 
 
