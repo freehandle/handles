@@ -26,6 +26,15 @@ type ActionValidator interface {
 	SetNewRevokePower(crypto.Hash) bool
 }
 
+func GetHashes(data []byte) []crypto.Hash {
+	tokens := GetTokens(data)
+	hashes := make([]crypto.Hash, len(tokens))
+	for n, token := range tokens {
+		hashes[n] = crypto.HashToken(token)
+	}
+	return hashes
+}
+
 func GetTokens(data []byte) []crypto.Token {
 	kind := Kind(data)
 	switch kind {
