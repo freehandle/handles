@@ -116,4 +116,21 @@ The standard configuration for the handles protocol is
 }
 ```
 
+## Contribution
+
+#### Synergy
+
+[Synergy](https://github.com/freehandle/synergy) protocol was designed as a digital framework for collaboration and collective construction. It runs seamlessly on top of the Breeze protocol and on top of handles social protocol.  
+
+Handles is, itself, an ongoing project inside the Synergy protocol. To collaborate with design decisions on handles, you are welcome to join [Personal Internet Collective](https://freehandle.org/synergy/collective/personal_internet). 
+
+#### Github
+
+Contributions that **do not** change protocol functionalities, such as bug fixes, testing coverage, code refactorings, etc, may be proposed directly as a pull request targeting the main branch of [handles official repository](). 
+
+For contributions that in anyway include protocol change, please join [Synergy's Personal Internet Collective]() and join a previous discussion involving the community, so decisions regarding the changes can be made collectively. 
+
+## License
+
+Handles is licensed under the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0.txt). 
 
