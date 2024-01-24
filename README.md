@@ -1,8 +1,8 @@
 ## Handles Protocol
 
-Official implementation of the handle soical protocol.
+Official implementation of the handles social protocol.
 
-This file deals with running a handles protocol validator. For information about the breeze protocol itself see the [protocol presentation](https://github.com/freehandle/handles/blob/main/handles.md)
+This file deals with running a handles protocol validator. For information about breeze protocol see the [protocol presentation](https://github.com/freehandle/handles/blob/main/handles.md)
 
 ## Building the source
 
@@ -41,13 +41,13 @@ For a validator connected to block listeners
 
 ### Validator
 
-To run a handles protocolo validator one has to provide a json configuration file with the relevant specifications.
+To run a handles protocol validator a json configuration file with the relevant specifications must be provided.
 
 ```
 blow-handles <path-to-json-config-file>
 ```
 
-The standard configuration for the handles protocol is 
+The standard configuration for handles protocol is 
 
 ```
 {
@@ -57,7 +57,7 @@ The standard configuration for the handles protocol is
 	"keepNBlock": <number (>=900) of blocks to keep in memory>
 	"trustedProviders": [
         {
-            "address": "dns or ip address of a trusted provider for bree blocks",
+            "address": "dns or ip address of a trusted provider for breeze blocks",
             "token": "token associated to that address"
         }, ...
     ]
@@ -85,11 +85,11 @@ Firewall rules follow the breeze convention
 
 When "open" is set to __true__ the firewall will by default allow all connections except those blacklisted by the "tokenList". When __false__, the firewall will by default forbid all connections except those whitelisted by the "tokenList". 
 
-If a node is starting from genesis, one must ensure that the node will process the entire history of breeze blockchain. Typically one will only use the configuration in a sync mode. 
+If the node starts from genesis, node must be ensured to process the entire history of breeze blockchain. Typically only a sync mode configuration will be used. 
 
 ### Block Database
 
-To run a handles protocol default block database one has to provide a json configuration file with the relevant specifications.
+To run a handles protocol default block database a json configuration file with the relevant specifications must be provided.
 
 ```
 echo-handles <path-to-json-config-file>
