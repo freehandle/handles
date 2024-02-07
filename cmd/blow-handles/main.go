@@ -20,34 +20,42 @@ const ProtocolPort = 6001
 
 type HandleConfig struct {
 	// Token for the node
-	Token string
+	Token string // `json:"token"`
 	// Port for the admin interface
-	AdminPort int
+	CredentialsPath string // `json:"credentialsPath"`
+	AdminPort       int    // `json:"adminPort"`
 	// Firewall for incoming connections
-	Blocks config.FirewallConfig
+	Blocks config.FirewallConfig // `json:"blocks"`
 	// Number of blocks to keep in memory
-	KeepNBlock int
+	KeepNBlocks int // `json:"keepNBlocks"`
 	// Trusted block providers for the node
-	TrustedProviders []config.Peer
+	TrustedProviders []config.Peer // `json:"trustedProviders"`
 	// Number of providers to connect to receive new blocks
-	ProvidersSize int
+	ProvidersSize int // `json:"providersSize"`
 	// Path to the notary file (empty for memory)
-	NotaryPath string
+	NotaryPath string // `json:"notaryPath"`
 	// True if the node will initiate a new social chain from genesis
-	Genesis bool
+	Genesis bool // `json:"genesis"`
 	// Trusted peers for the node to sync state
-	TrustedPeers []config.Peer
+	TrustedPeers []config.Peer // `json:"trustedPeers"`
 }
 
 func (c HandleConfig) Check() error {
-	if crypto.TokenFromString(c.Token) == crypto.ZeroToken {
+	token := crypto.TokenFromString(c.Token)
+	if token == crypto.ZeroToken {
 		return errors.New("invalid nde token")
 	}
-	if c.AdminPort == ProtocolPort {
-		return fmt.Errorf("invalid admin port: %f is reserved for protocol", ProtocolPort)
+	if c.CredentialsPath != "" {
+		_, err := config.ParseCredentials(c.CredentialsPath, token)
+		if err != nil {
+			return fmt.Errorf("could not parse credentials: %v", err)
+		}
 	}
-	if c.KeepNBlock < 900 {
-		return fmt.Errorf("invalid keep n block: %v is less than 900", c.KeepNBlock)
+	if c.AdminPort == ProtocolPort {
+		return fmt.Errorf("invalid admin port: %d is reserved for protocol", ProtocolPort)
+	}
+	if c.KeepNBlocks < 900 {
+		return fmt.Errorf("invalid keep n block: %v is less than 900", c.KeepNBlocks)
 	}
 	if len(c.TrustedProviders) == 0 {
 		return fmt.Errorf("no trusted providers")
@@ -62,13 +70,14 @@ func (c HandleConfig) Check() error {
 }
 
 func HandleConfigToConfig(hdl *HandleConfig, pk crypto.PrivateKey) Config {
+
 	cfg := Config{
 		Node: social.Configuration{
 			Hostname:           "",
 			Credentials:        pk,
 			AdminPort:          hdl.AdminPort,
 			Firewall:           config.FirewallToValidConnections(hdl.Blocks),
-			KeepNBlocks:        hdl.KeepNBlock,
+			KeepNBlocks:        hdl.KeepNBlocks,
 			ParentProtocolCode: 0,
 			NodeProtocolCode:   1,
 			RootBlockInterval:  time.Second,
@@ -76,7 +85,7 @@ func HandleConfigToConfig(hdl *HandleConfig, pk crypto.PrivateKey) Config {
 			CalculateCheckSum:  true,
 			BlocksSourcePort:   5405,
 			BlocksTargetPort:   6001,
-			TrustedProviders:   config.PeersToTokenAddr(hdl.TrustedProviders),
+			TrustedProviders:   config.PeersToTokenAddrWithPort(hdl.TrustedProviders, 5405),
 			ProvidersSize:      hdl.ProvidersSize,
 			MaxCheckpointLag:   10,
 		},
@@ -120,15 +129,25 @@ func main() {
 		fmt.Printf("misconfiguarion: %v\n", err)
 		os.Exit(1)
 	}
-	ctx, _ := context.WithCancel(context.Background())
 	token := crypto.TokenFromString(specs.Token)
-	keys := config.WaitForRemoteKeysSync(ctx, []crypto.Token{token}, "localhost", specs.AdminPort)
-	pk := keys[token]
-	if !pk.PublicKey().Equal(token) {
-		fmt.Println("could not synchrnize keys")
-		os.Exit(1)
+	ctx, cancel := context.WithCancel(context.Background())
+	var secret crypto.PrivateKey
+	if specs.CredentialsPath != "" {
+		secret, err = config.ParseCredentials(specs.CredentialsPath, token)
+		if err != nil {
+			fmt.Printf("could not retrieve credentials from file: %v\n", err)
+			cancel()
+			os.Exit(1)
+		}
+	} else {
+		keys := config.WaitForRemoteKeysSync(ctx, []crypto.Token{token}, "localhost", specs.AdminPort)
+		secret = keys[token]
+		if !secret.PublicKey().Equal(token) {
+			fmt.Println("could not synchrnize keys")
+			os.Exit(1)
+		}
 	}
-	cfg := HandleConfigToConfig(specs, pk)
+	cfg := HandleConfigToConfig(specs, secret)
 
 	var finalize chan error
 	if cfg.Genesis {
