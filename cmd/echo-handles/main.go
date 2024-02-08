@@ -15,7 +15,8 @@ import (
 
 type Config struct {
 	// Token for the node
-	Token string // json:"token"
+	Token           string // json:"token"
+	CredentialsPath string // `json:"credentialsPath"`
 	// Port for the admin interface
 	AdminPort int // json:"admin_port"
 	// Port for the new conenctiosn
