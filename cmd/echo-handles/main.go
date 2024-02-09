@@ -91,13 +91,25 @@ func main() {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	token := crypto.TokenFromString(specs.Token)
-	keys := config.WaitForRemoteKeysSync(ctx, []crypto.Token{token}, "localhost", specs.AdminPort)
-	pk := keys[token]
-	if !pk.PublicKey().Equal(token) {
-		fmt.Println("could not synchrnize keys")
-		os.Exit(1)
+
+	var secret crypto.PrivateKey
+	if specs.CredentialsPath != "" {
+		secret, err = config.ParseCredentials(specs.CredentialsPath, token)
+		if err != nil {
+			fmt.Printf("could not retrieve credentials from file: %v\n", err)
+			cancel()
+			os.Exit(1)
+		}
+	} else {
+		keys := config.WaitForRemoteKeysSync(ctx, []crypto.Token{token}, "localhost", specs.AdminPort)
+		secret = keys[token]
+		if !secret.PublicKey().Equal(token) {
+			fmt.Println("could not synchrnize keys")
+			os.Exit(1)
+		}
 	}
-	cfg := ConfigToBlocksConfig(*specs, pk)
+
+	cfg := ConfigToBlocksConfig(*specs, secret)
 	server := blocks.NewServer(ctx, nil, cfg)
 
 	c := make(chan os.Signal, 1)
