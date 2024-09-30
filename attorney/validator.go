@@ -65,6 +65,7 @@ func (s *MutatingState) HasHandle(handle string) bool {
 func (v *MutatingState) Validate(data []byte) bool {
 	kind := Kind(data)
 	if kind == Invalid {
+		fmt.Println("axe node: invalid kind", data)
 		return false
 	}
 	var ok bool
