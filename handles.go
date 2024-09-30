@@ -2,6 +2,7 @@ package handles
 
 import (
 	"context"
+	"io"
 
 	"github.com/freehandle/breeze/crypto"
 	"github.com/freehandle/breeze/middleware/social"
@@ -66,6 +67,19 @@ func newHandlesBlock(block *social.SocialBlock) *HandlesBlock {
 		}
 	}
 	return handlesBlock
+}
+
+func HandlesLocal(ctx context.Context, persist io.ReadWriteCloser, receiver chan []byte, listeners []chan []byte) chan error {
+	chain := social.LocalBlockChain[*attorney.Mutations, *attorney.MutatingState]{
+		Interval:  1,
+		Receiver:  receiver,
+		Listeners: listeners,
+		IO:        persist,
+		Epoch:     0,
+	}
+	genesis := attorney.NewGenesisState("")
+	chain.LoadState(genesis, persist, listeners)
+	return chain.Start(ctx)
 }
 
 func HandlesListener(ctx context.Context, sources *socket.TrustedAggregator) chan *HandlesBlock {
