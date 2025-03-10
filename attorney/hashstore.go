@@ -105,6 +105,25 @@ func (w *hashVault) Close() bool {
 	return <-ok
 }
 
+func OpenHashVaultFromFile(name string, epoch uint64, bitsForBucket int64, dataPath string) *hashVault {
+	if store := papirus.OpenFileStore(filepath.Join(dataPath, name)); store == nil {
+		slog.Error("OpenHashVaultFromFile: OpenFileStore returned nil")
+		return nil
+	} else {
+		bucketstore := papirus.NewBucketStore(32, 6, store)
+		if bucketstore == nil {
+			slog.Error("OpenHashVaultFromFile: NewBucketStore returned nil")
+			return nil
+		}
+		hs := papirus.NewHashStore(name, bucketstore, int(bitsForBucket), deleteOrInsert)
+		vault := &hashVault{
+			hs: hs,
+		}
+		vault.hs.Start()
+		return vault
+	}
+}
+
 func NewHashVault(name string, epoch uint64, bitsForBucket int64, dataPath string) *hashVault {
 	nbytes := 56 + (32*6+8)*int64(1<<bitsForBucket)
 	var bytestore papirus.ByteStore

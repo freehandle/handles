@@ -12,6 +12,20 @@ type State struct {
 	Attorneys *hashVault
 }
 
+func OpenState(dataPath string, epoch uint64) *State {
+	memebers := NewHashVault("members", epoch, 8, dataPath)
+	captions := NewHashVault("captions", epoch, 8, dataPath)
+	attorneys := NewHashVault("attorneys", epoch, 8, dataPath)
+	if memebers == nil || captions == nil || attorneys == nil {
+		return nil
+	}
+	return &State{
+		Members:   memebers,
+		Captions:  captions,
+		Attorneys: attorneys,
+	}
+}
+
 func NewGenesisState(dataPath string) *State {
 	state := State{
 		Members:   NewHashVault("members", 0, 8, dataPath),
