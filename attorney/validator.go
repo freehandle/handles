@@ -74,9 +74,9 @@ func (v *MutatingState) Validate(data []byte) bool {
 		join := ParseJoinNetwork(data)
 		if join != nil {
 			ok = v.SetNewMember(join.Author, join.Handle)
-			fmt.Printf("axe node %v:%+v\n", ok, *join)
+			//fmt.Printf("axe node %v:%+v\n", ok, *join)
 		} else {
-			fmt.Printf("axe node: could not parse join\n %v\n", data)
+			//fmt.Printf("axe node: could not parse join\n %v\n", data)
 		}
 	case UpdateInfoType:
 		update := ParseUpdateInfo(data)
@@ -85,9 +85,9 @@ func (v *MutatingState) Validate(data []byte) bool {
 			if ok {
 				ok = v.HasMember(update.Author)
 			}
-			fmt.Printf("axe node %v:%+v\n", ok, *update)
+			//fmt.Printf("axe node %v:%+v\n", ok, *update)
 		} else {
-			fmt.Printf("axe node %v: could not parse update\n", ok)
+			//fmt.Printf("axe node %v: could not parse update\n", ok)
 		}
 	case GrantPowerOfAttorneyType:
 		grant := ParseGrantPowerOfAttorney(data)
@@ -96,9 +96,9 @@ func (v *MutatingState) Validate(data []byte) bool {
 			if ok {
 				ok = v.SetNewGrantPower(grant.Author, grant.Attorney)
 			}
-			fmt.Printf("axe node %v:%+v\n", ok, *grant)
+			//fmt.Printf("axe node %v:%+v\n", ok, *grant)
 		} else {
-			fmt.Printf("axe node %v: could not parse grant\n", ok)
+			//fmt.Printf("axe node %v: could not parse grant\n", ok)
 		}
 	case RevokePowerOfAttorneyType:
 		revoke := ParseRevokePowerOfAttorney(data)
@@ -107,20 +107,22 @@ func (v *MutatingState) Validate(data []byte) bool {
 			if ok {
 				ok = v.SetNewRevokePower(revoke.Author, revoke.Attorney)
 			}
-			fmt.Printf("axe node revoke %v:%+v\n", ok, *revoke)
+			//fmt.Printf("axe node revoke %v:%+v\n", ok, *revoke)
 		} else {
-			fmt.Printf("axe node %v: could not parse revoke\n", ok)
+			//fmt.Printf("axe node %v: could not parse revoke\n", ok)
 		}
 	case VoidType:
+		fmt.Println("void", data)
 		void := ParseVoid(data)
 		if void != nil {
+			fmt.Println(void)
 			ok = v.HasMember(void.Author)
 			if ok {
 				ok = v.PowerOfAttorney(void.Author, void.Signer)
 			}
 			fmt.Printf("axe node void %v:%+v\n", ok, *void)
 		} else {
-			fmt.Printf("axe node %v: could not parse void\n", ok)
+			//fmt.Printf("axe node %v: could not parse void\n", ok)
 		}
 	}
 	return ok

@@ -5,7 +5,6 @@ package attorney
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/freehandle/breeze/crypto"
 	"github.com/freehandle/breeze/protocol/actions"
@@ -140,7 +139,6 @@ func (j *JoinNetwork) Sign(key crypto.PrivateKey) {
 
 func ParseJoinNetwork(data []byte) *JoinNetwork {
 	if data[0] != 0 || data[1] != actions.IVoid || len(data) < 14 {
-		fmt.Println(3)
 		return nil
 	}
 	join := JoinNetwork{}
@@ -487,6 +485,7 @@ func ParseVoid(data []byte) *Void {
 	position := 2
 	void.Epoch, position = util.ParseUint64(data, position)
 	void.Protocol, position = util.ParseUint32(data, position)
+	// Handles Void Type
 	if data[position] != VoidType {
 		return nil
 	}
