@@ -5,6 +5,7 @@ package attorney
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/freehandle/breeze/crypto"
 	"github.com/freehandle/breeze/protocol/actions"
@@ -154,6 +155,10 @@ func ParseJoinNetwork(data []byte) *JoinNetwork {
 	position = position + 5
 	join.Author, position = util.ParseToken(data, position)
 	join.Handle, position = util.ParseString(data, position)
+	join.Handle = strings.Replace(join.Handle, " ", "", -1)
+	if len(join.Handle) == 0 {
+		return nil
+	}
 	join.Details, position = util.ParseString(data, position)
 	if len(join.Details) > 0 && !json.Valid([]byte(join.Details)) {
 		return nil
