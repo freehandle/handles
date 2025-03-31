@@ -155,7 +155,7 @@ func ParseJoinNetwork(data []byte) *JoinNetwork {
 	position = position + 5
 	join.Author, position = util.ParseToken(data, position)
 	join.Handle, position = util.ParseString(data, position)
-	join.Handle = strings.Replace(join.Handle, " ", "", -1)
+	join.Handle = strings.TrimSpace(join.Handle)
 	if len(join.Handle) == 0 {
 		return nil
 	}
