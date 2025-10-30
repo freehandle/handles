@@ -2,6 +2,7 @@ package handles
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"time"
 
@@ -133,6 +134,7 @@ func LocalHandleListener(ctx context.Context, path, name string, interval time.D
 				close(output)
 				return
 			case block, ok := <-blocks:
+				fmt.Println("Received block")
 				if !ok {
 					close(output)
 					return

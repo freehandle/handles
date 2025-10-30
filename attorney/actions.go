@@ -5,6 +5,7 @@ package attorney
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/freehandle/breeze/crypto"
@@ -33,6 +34,34 @@ func GetHashes(data []byte) []crypto.Hash {
 		hashes[n] = crypto.HashToken(token)
 	}
 	return hashes
+}
+
+func ToString(data []byte) string {
+	kind := Kind(data)
+	switch kind {
+	case JoinNetworkType:
+		if join := ParseJoinNetwork(data); join != nil {
+			return fmt.Sprintf("%+v", *join)
+		}
+
+	case UpdateInfoType:
+		if update := ParseUpdateInfo(data); update != nil {
+			return fmt.Sprintf("%+v", *update)
+		}
+	case GrantPowerOfAttorneyType:
+		if grant := ParseGrantPowerOfAttorney(data); grant != nil {
+			return fmt.Sprintf("%+v", *grant)
+		}
+	case RevokePowerOfAttorneyType:
+		if revoke := ParseRevokePowerOfAttorney(data); revoke != nil {
+			return fmt.Sprintf("%+v", *revoke)
+		}
+	case VoidType:
+		if void := ParseVoid(data); void != nil {
+			return fmt.Sprintf("%+v", *void)
+		}
+	}
+	return "not a handles action"
 }
 
 func GetTokens(data []byte) []crypto.Token {
