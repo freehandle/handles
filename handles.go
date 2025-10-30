@@ -3,8 +3,10 @@ package handles
 import (
 	"context"
 	"io"
+	"time"
 
 	"github.com/freehandle/breeze/crypto"
+	"github.com/freehandle/breeze/middleware/simple"
 	"github.com/freehandle/breeze/middleware/social"
 	"github.com/freehandle/breeze/socket"
 	"github.com/freehandle/handles/attorney"
@@ -19,6 +21,45 @@ type HandlesBlock struct {
 	Update   map[crypto.Hash]*attorney.UpdateInfo
 	Void     map[crypto.Hash]*attorney.Void
 	Commited bool
+}
+
+func simpleToHandleBlock(block *simple.SimpleBlock) *HandlesBlock {
+	handlesBlock := &HandlesBlock{
+		Epoch:    block.Epoch,
+		Seal:     crypto.ZeroHash,
+		Grant:    make(map[crypto.Hash]*attorney.GrantPowerOfAttorney),
+		Revoke:   make(map[crypto.Hash]*attorney.RevokePowerOfAttorney),
+		Join:     make(map[crypto.Hash]*attorney.JoinNetwork),
+		Update:   make(map[crypto.Hash]*attorney.UpdateInfo),
+		Void:     make(map[crypto.Hash]*attorney.Void),
+		Commited: true,
+	}
+	for _, action := range block.Actions {
+		hash := crypto.Hasher(action)
+		switch attorney.Kind(action) {
+		case attorney.GrantPowerOfAttorneyType:
+			if grant := attorney.ParseGrantPowerOfAttorney(action); grant != nil {
+				handlesBlock.Grant[hash] = grant
+			}
+		case attorney.RevokePowerOfAttorneyType:
+			if revoke := attorney.ParseRevokePowerOfAttorney(action); revoke != nil {
+				handlesBlock.Revoke[hash] = revoke
+			}
+		case attorney.JoinNetworkType:
+			if join := attorney.ParseJoinNetwork(action); join != nil {
+				handlesBlock.Join[hash] = join
+			}
+		case attorney.UpdateInfoType:
+			if update := attorney.ParseUpdateInfo(action); update != nil {
+				handlesBlock.Update[hash] = update
+			}
+		case attorney.VoidType:
+			if void := attorney.ParseVoid(action); void != nil {
+				handlesBlock.Void[hash] = void
+			}
+		}
+	}
+	return handlesBlock
 }
 
 func newHandlesBlock(block *social.SocialBlock) *HandlesBlock {
@@ -80,6 +121,28 @@ func HandlesLocal(ctx context.Context, persist io.ReadWriteCloser, receiver chan
 	genesis := attorney.NewGenesisState("")
 	chain.LoadState(genesis, persist, listeners)
 	return chain.Start(ctx)
+}
+
+func LocalHandleListener(ctx context.Context, path, name string, interval time.Duration) chan *HandlesBlock {
+	blocks := simple.NewBlockReader(ctx, path, name, interval)
+	output := make(chan *HandlesBlock)
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				close(output)
+				return
+			case block, ok := <-blocks:
+				if !ok {
+					close(output)
+					return
+				}
+				handlesBlock := simpleToHandleBlock(block)
+				output <- handlesBlock
+			}
+		}
+	}()
+	return output
 }
 
 func HandlesListener(ctx context.Context, sources *socket.TrustedAggregator) chan *HandlesBlock {
