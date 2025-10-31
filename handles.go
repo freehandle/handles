@@ -89,22 +89,27 @@ func newHandlesBlock(block *social.SocialBlock) *HandlesBlock {
 		case attorney.GrantPowerOfAttorneyType:
 			if grant := attorney.ParseGrantPowerOfAttorney(action); grant != nil {
 				handlesBlock.Grant[hash] = grant
+				fmt.Printf("%+v\n", grant)
 			}
 		case attorney.RevokePowerOfAttorneyType:
 			if revoke := attorney.ParseRevokePowerOfAttorney(action); revoke != nil {
 				handlesBlock.Revoke[hash] = revoke
+				fmt.Printf("%+v\n", revoke)
 			}
 		case attorney.JoinNetworkType:
 			if join := attorney.ParseJoinNetwork(action); join != nil {
 				handlesBlock.Join[hash] = join
+				fmt.Printf("%+v\n", join)
 			}
 		case attorney.UpdateInfoType:
 			if update := attorney.ParseUpdateInfo(action); update != nil {
 				handlesBlock.Update[hash] = update
+				fmt.Printf("%+v\n", update)
 			}
 		case attorney.VoidType:
 			if void := attorney.ParseVoid(action); void != nil {
 				handlesBlock.Void[hash] = void
+				fmt.Printf("%+v\n", void)
 			}
 		}
 	}
@@ -134,7 +139,6 @@ func LocalHandleListener(ctx context.Context, path, name string, interval time.D
 				close(output)
 				return
 			case block, ok := <-blocks:
-				fmt.Println("Received block")
 				if !ok {
 					close(output)
 					return
