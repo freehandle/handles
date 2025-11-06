@@ -14,7 +14,7 @@ import (
 func main() {
 	genesis := attorney.NewGenesisState("")
 	fmt.Println("Initialized genesis state")
-	blocos := make(chan *simple.SimpleBlock, 0)
+	blocos := make(chan *simple.SimpleBlock, 1)
 	lastReadEpoch := make(chan uint64)
 	go func() {
 		epoch := uint64(0)
@@ -25,9 +25,12 @@ func main() {
 			}
 			validator := genesis.Validator()
 			epoch = block.Epoch
-			fmt.Println("Lendo bloco...", epoch)
 			for _, action := range block.Actions {
-				validator.Validate(action)
+				if !validator.Validate(action) {
+					fmt.Printf("invalid action in block: %s\n-----\n", attorney.ToString(action))
+				}
+				fmt.Println(attorney.ToString(action))
+				fmt.Println("---")
 			}
 			genesis.Incorporate(validator.Mutations())
 		}
@@ -48,7 +51,9 @@ func main() {
 		Recent:      [][][]byte{},
 		Keep:        10,
 	}
-	token, pk := crypto.RandomAsymetricKey()
+
+	pk := crypto.PrivateKeyFromString("b61b1452f41a62ac20a1cf5136a2c692d7312f70c65f196426f0a11aca733d3d91ad274d06c4be307a332a0e59449ad25ae2c65e4ad5a8f0af87067ac2fc3a54")
+	token := pk.PublicKey()
 	fmt.Printf("Starting simple chain gateway on port 7000: token %s\n", token.String())
 	err = <-simpleChain.Start(context.Background(), pk, attorney.ToString)
 	if err != nil {

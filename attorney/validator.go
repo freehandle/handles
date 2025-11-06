@@ -112,15 +112,15 @@ func (v *MutatingState) Validate(data []byte) bool {
 			//fmt.Printf("axe node %v: could not parse revoke\n", ok)
 		}
 	case VoidType:
-		fmt.Println("void", data)
+		//fmt.Println("void", data)
 		void := ParseVoid(data)
 		if void != nil {
-			fmt.Println(void)
+			//fmt.Println(void)
 			ok = v.HasMember(void.Author)
 			if ok {
 				ok = v.PowerOfAttorney(void.Author, void.Signer)
 			}
-			fmt.Printf("axe node void %v:%+v\n", ok, *void)
+			//fmt.Printf("axe node void %v:%+v\n", ok, *void)
 		} else {
 			//fmt.Printf("axe node %v: could not parse void\n", ok)
 		}

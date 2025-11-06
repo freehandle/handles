@@ -41,24 +41,24 @@ func ToString(data []byte) string {
 	switch kind {
 	case JoinNetworkType:
 		if join := ParseJoinNetwork(data); join != nil {
-			return fmt.Sprintf("%+v", *join)
+			return fmt.Sprintf("handles join:%+v", *join)
 		}
 
 	case UpdateInfoType:
 		if update := ParseUpdateInfo(data); update != nil {
-			return fmt.Sprintf("%+v", *update)
+			return fmt.Sprintf("handles update:%+v", *update)
 		}
 	case GrantPowerOfAttorneyType:
 		if grant := ParseGrantPowerOfAttorney(data); grant != nil {
-			return fmt.Sprintf("%+v", *grant)
+			return fmt.Sprintf("handles grant:%+v", *grant)
 		}
 	case RevokePowerOfAttorneyType:
 		if revoke := ParseRevokePowerOfAttorney(data); revoke != nil {
-			return fmt.Sprintf("%+v", *revoke)
+			return fmt.Sprintf("handles revoke:%+v", *revoke)
 		}
 	case VoidType:
 		if void := ParseVoid(data); void != nil {
-			return fmt.Sprintf("%+v", *void)
+			return fmt.Sprintf("handles void:%+v", *void)
 		}
 	}
 	return "not a handles action"
