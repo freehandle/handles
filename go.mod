@@ -1,6 +1,6 @@
 module github.com/freehandle/handles
 
-go 1.20
+go 1.24
 
 replace github.com/freehandle/breeze => ../breeze
 

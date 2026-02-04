@@ -37,6 +37,7 @@ func simpleToHandleBlock(block *simple.SimpleBlock) *HandlesBlock {
 	}
 	for _, action := range block.Actions {
 		hash := crypto.Hasher(action)
+		// action = action[1:]
 		switch attorney.Kind(action) {
 		case attorney.GrantPowerOfAttorneyType:
 			if grant := attorney.ParseGrantPowerOfAttorney(action); grant != nil {
@@ -131,6 +132,7 @@ func HandlesLocal(ctx context.Context, persist io.ReadWriteCloser, receiver chan
 
 func LocalHandleListener(ctx context.Context, path, name string, interval time.Duration) chan *HandlesBlock {
 	blocks := simple.NewBlockReader(ctx, path, name, interval)
+	fmt.Println("cheguei")
 	output := make(chan *HandlesBlock)
 	go func() {
 		for {
@@ -139,6 +141,10 @@ func LocalHandleListener(ctx context.Context, path, name string, interval time.D
 				close(output)
 				return
 			case block, ok := <-blocks:
+				if len(block.Actions) > 0 {
+					fmt.Println(block.Epoch, len(block.Actions))
+				}
+
 				if !ok {
 					close(output)
 					return
